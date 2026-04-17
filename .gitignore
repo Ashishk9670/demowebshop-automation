@@ -1,0 +1,10 @@
+.idea/
+.settings/
+.project
+.classpath
+target/
+test-output/
+.chrome-headless/
+*.iml
+*.log
+

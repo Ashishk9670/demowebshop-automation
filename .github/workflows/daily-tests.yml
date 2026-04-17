@@ -1,0 +1,51 @@
+name: Daily Test Suite
+
+on:
+  schedule:
+    # Runs at 11:00 AM UTC every day
+    # To change the time, modify the cron expression below
+    # Format: minute hour day month day-of-week
+    - cron: '0 11 * * *'
+  
+  # Allow manual trigger from GitHub Actions UI
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: maven
+      
+      - name: Run tests with Maven
+        run: mvn clean test -v
+      
+      - name: Generate test report
+        if: always()
+        run: mvn surefire-report:report
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: target/surefire-reports/
+      
+      - name: Upload extent report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: extent-report
+          path: test-output/
+      
+      - name: Notify on failure
+        if: failure()
+        run: echo "Tests failed! Check the artifacts for details."

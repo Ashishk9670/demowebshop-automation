@@ -1,0 +1,12 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Demo Web Shop Automation Suite" parallel="false">
+    <listeners>
+        <listener class-name="com.demowebshop.listeners.TestListener"/>
+    </listeners>
+
+    <test name="Purchase Flow Tests">
+        <classes>
+            <class name="com.demowebshop.tests.PurchaseFlowTest"/>
+        </classes>
+    </test>
+</suite>
