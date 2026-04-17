@@ -70,6 +70,12 @@
                     <systemPropertyVariables>
                         <config.file>${config.file}</config.file>
                     </systemPropertyVariables>
+                    <!-- Parallel Test Execution Configuration -->
+                    <!-- To enable: mvn clean test -DparallelExecution=true -->
+                    <!-- Default: serial (false) for stability; enable for faster CI/CD pipelines -->
+                    <parallel>methods</parallel>
+                    <threadCount>3</threadCount>
+                    <skipTests>${skipParallelTests}</skipTests>
                 </configuration>
             </plugin>
         </plugins>

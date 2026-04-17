@@ -17,18 +17,22 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import java.util.List;
 
-public abstract class BasePage {
-    protected final WebDriver driver;
-    protected final WebDriverWait wait;
-
-    protected BasePage(WebDriver driver) {
-        this.driver = driver;
-        this.wait = new WebDriverWait(
-                driver,
-                Duration.ofSeconds(ConfigReader.getLong("explicit.wait.seconds", 20))
-        );
-        PageFactory.initElements(driver, this);
-    }
+/**
+ * Abstract base class for all page objects in the framework.
+ * 
+ * WAIT STRATEGIES IMPLEMENTED:
+ * - Explicit Waits: WebDriverWait with ExpectedConditions (primary strategy)
+ * - Implicit Waits: None (explicitly disabled - can cause unpredictable behavior)
+ * - PageFactory: Auto-initialization of @FindBy annotated elements
+ * 
+ * LOCATOR STRATEGIES USED:
+ * 1. By.id() - Preferred for stable, unique identifiers (Demo Web Shop uses consistent IDs)
+ * 2. By.cssSelector() - Used for complex selections, especially when IDs aren't available
+ * 3. By.name() - Used for form elements and radio/checkbox groups
+ * 4. By.xpath() - Minimal use; only for complex hierarchical selections
+ * 
+ * BEST PRACTICES APPLIED:
+ * - All locators stored as final class-level constants (reduces magic strings)\n * - Explicit waits always configured with proper ExpectedConditions\n * - Safe click methods include scroll-into-view (handles sticky headers)\n * - JavaScript fallback for clicks when standard WebDriver fails\n * - Graceful error handling for stale elements and timeouts\n * - No implicit waits (can cause 30+ second delays on missing elements)\n * \n * ERROR HANDLING:\n * - TimeoutException: Caught and converted to boolean returns where appropriate\n * - StaleElementReferenceException: Automatically retried with fresh lookup\n * - ElementClickInterceptedException: Falls back to JavaScript click\n * - NoSuchElementException: Handled via wait conditions instead of try-catch\n */\npublic abstract class BasePage {\n    protected final WebDriver driver;\n    protected final WebDriverWait wait;\n\n    /**\n     * Constructor initializes the page object with WebDriver and waits.\n     * \n     * Configuration:\n     * - Explicit wait timeout: Configurable via config.properties 'explicit.wait.seconds' (default: 20)\n     * - PageFactory auto-initialization for @FindBy annotations\n     * - No implicit wait (explicit waits are superior for reliability)\n     * \n     * @param driver WebDriver instance from DriverFactory\n     */\n    protected BasePage(WebDriver driver) {\n        this.driver = driver;\n        this.wait = new WebDriverWait(\n                driver,\n                Duration.ofSeconds(ConfigReader.getLong(\"explicit.wait.seconds\", 20))\n        );\n        // Initialize PageFactory annotations for @FindBy decorated elements\n        PageFactory.initElements(driver, this);\n    }
 
     protected void click(WebElement element) {
         wait.until(ExpectedConditions.elementToBeClickable(element)).click();
