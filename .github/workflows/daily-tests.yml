@@ -28,19 +28,36 @@ jobs:
       - name: Run tests with Maven
         run: mvn clean test -v
 
+      - name: Display test results
+        if: always()
+        run: |
+          echo "=== Test Execution Complete ==="
+          if [ -d "target/surefire-reports/" ]; then
+            echo "TestNG Reports found:"
+            ls -la target/surefire-reports/
+          else
+            echo "TestNG Reports directory not found"
+          fi
+          if [ -d "test-output/" ]; then
+            echo "Extent Reports found:"
+            ls -la test-output/
+          else
+            echo "Extent Reports directory not found"
+          fi
+
       - name: Generate test report
         if: always()
-        run: mvn surefire-report:report
+        run: mvn surefire-report:report || true
 
       - name: Upload test results
-        if: always()
+        if: always() && hashFiles('target/surefire-reports/*') != ''
         uses: actions/upload-artifact@v4
         with:
           name: test-results
           path: target/surefire-reports/
 
       - name: Upload extent report
-        if: always()
+        if: always() && hashFiles('test-output/*') != ''
         uses: actions/upload-artifact@v4
         with:
           name: extent-report
@@ -48,4 +65,4 @@ jobs:
 
       - name: Notify on failure
         if: failure()
-        run: echo "Tests failed! Check the artifacts for details."
+        run: echo "Tests failed! Check the logs above for details. Maven output saved in logs."
